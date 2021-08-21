@@ -1,6 +1,7 @@
-import { Column } from 'typeorm';
-import { AbstractEntity } from './AbstractEntity';
+import { Column, Entity } from 'typeorm';
+import { AbstractEntity } from './Abstract.entity';
 
+@Entity()
 export class TransactionEntity extends AbstractEntity {
   @Column({
     name: 'fiat_amount',
