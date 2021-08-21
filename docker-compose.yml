@@ -4,7 +4,7 @@ services:
   database:
     image: postgres:13
     environment:
-      POSTGRES_DB: rxjs-demo
+      POSTGRES_DB: demo
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
     ports:
