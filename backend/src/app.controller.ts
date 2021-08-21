@@ -1,10 +1,6 @@
 import { Controller, Get } from '@nestjs/common';
 import { AppService } from './app.service';
-
-interface TransactionResponseDto {
-  id: string;
-  fiatAmount: number;
-}
+import { TransactionResponseDto } from './dto/transactions.dto';
 
 @Controller()
 export class AppController {

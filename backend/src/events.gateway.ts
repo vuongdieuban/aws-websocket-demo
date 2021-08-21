@@ -1,21 +1,23 @@
 import { Logger } from '@nestjs/common';
 import { WebSocketGateway, OnGatewayConnection, OnGatewayDisconnect } from '@nestjs/websockets';
 import { Socket } from 'socket.io';
+import { EventsPublisher } from './events-publisher';
 
 @WebSocketGateway()
 export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
   private readonly logger: Logger = new Logger('EventsGateway');
+  private TxDataStreamEventName = 'tx-data';
 
   private readonly connectedSockets = new Map<string, Socket[]>();
 
-  constructor() {
-    // this.applicationEventsPublisher.data$.subscribe(data => {
-    //   const sockets = this.connectedSockets.get(data.payload.userId);
-    //   if (!sockets) {
-    //     return;
-    //   }
-    //   sockets.forEach(socket => socket.emit(data.event, data));
-    // });
+  constructor(private readonly eventsPublisher: EventsPublisher) {
+    this.eventsPublisher.txStream$.subscribe(data => {
+      const sockets = this.connectedSockets.get(data.clientId);
+      if (!sockets) {
+        return;
+      }
+      sockets.forEach(socket => socket.emit(this.TxDataStreamEventName, data));
+    });
   }
 
   public handleDisconnect(socket: Socket) {
