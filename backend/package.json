@@ -25,7 +25,8 @@
     "typeorm:migration:generate": "npm run typeorm -- migration:generate -n",
     "typeorm:migration:run": "npm run typeorm -- migration:run",
     "typeorm:seeds:create": "npm run typeorm -- migration:create -f seeds-ormconfig.json -c seeds -n",
-    "typeorm:seeds:run": "npm run typeorm -- migration:run -f seeds-ormconfig.json -c seeds"
+    "typeorm:seeds:run": "npm run typeorm -- migration:run -f seeds-ormconfig.json -c seeds",
+    "ready-db": "npm run typeorm:migration:run && npm run typeorm:seeds:run"
   },
   "dependencies": {
     "@nestjs/common": "^7.5.1",
