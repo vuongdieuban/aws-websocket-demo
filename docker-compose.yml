@@ -1,0 +1,11 @@
+version: '3.7'
+
+services:
+  database:
+    image: postgres:13
+    environment:
+      POSTGRES_DB: rxjs-demo
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - '5432:5432'
