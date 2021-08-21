@@ -1,2 +1,9 @@
 dist
 node_modules
+
+ormconfig.json
+seeds-ormconfig.json
+
+
+.vscode
+.env
