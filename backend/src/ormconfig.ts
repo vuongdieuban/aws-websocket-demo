@@ -1,5 +1,4 @@
 import { TypeOrmModuleOptions } from '@nestjs/typeorm';
-import { TransactionEntity } from './database/entities/Transaction.entity';
 
 export const typeormConfigOptions: TypeOrmModuleOptions = {
   synchronize: false,
@@ -12,9 +11,9 @@ export const typeormConfigOptions: TypeOrmModuleOptions = {
   password: 'postgres',
   database: 'demo',
   logging: true,
-  entities: ['src/database/entities/**/*.entity.ts'],
+  entities: [`dist/database/entities/**/*.entity.js`],
   migrationsTableName: 'migration',
-  migrations: ['src/database/migrations/*.ts'],
+  migrations: ['dist/database/migrations/*.js'],
   cli: {
     migrationsDir: 'src/database/migrations',
   },
@@ -24,7 +23,7 @@ export const seedsConfigOptions: TypeOrmModuleOptions = {
   ...typeormConfigOptions,
   name: 'seeds',
   migrationsTableName: 'seeds_migrations',
-  migrations: ['src/database/seeds/*.ts'],
+  migrations: ['dist/database/seeds/*.js'],
   cli: {
     migrationsDir: 'src/database/seeds',
   },
