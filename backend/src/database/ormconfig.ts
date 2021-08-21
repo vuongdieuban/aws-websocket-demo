@@ -1,4 +1,5 @@
 import { TypeOrmModuleOptions } from '@nestjs/typeorm';
+import { TransactionEntity } from './entities/TransactionEntity';
 
 export const typeormConfigOptions: TypeOrmModuleOptions = {
   synchronize: false,
@@ -11,7 +12,7 @@ export const typeormConfigOptions: TypeOrmModuleOptions = {
   password: 'postgres',
   database: 'rxjs-demo',
   logging: true,
-  entities: ['dist/**/*.entity.js'],
+  entities: [TransactionEntity],
 
   migrationsTableName: 'migration',
   migrations: ['dist/database/migrations/*.js'],
