@@ -45,6 +45,9 @@ export class AppController {
       fiatAmount: tx.fiatAmount,
     }));
 
+    // NOTE: There is an issue here, if the client disconnected while this thing still going, this thing doesn't stop
+    // When the client reconnected, and if this for loop has not finish then the client will receive 2 stream
+    // a new stream and the old one that has not finished.
     for (const tx of formattedTx) {
       await timer(1000).toPromise(); // small delay so we don't push too fast
       this.eventsPublisher.publish(clientId, tx);
