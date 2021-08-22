@@ -3,7 +3,7 @@ import { WebSocketGateway, OnGatewayConnection, OnGatewayDisconnect } from '@nes
 import { Socket } from 'socket.io';
 import { EventsPublisher } from './events-publisher';
 
-@WebSocketGateway()
+@WebSocketGateway({ cors: true })
 export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
   private readonly logger: Logger = new Logger('EventsGateway');
   private TxDataStreamEventName = 'tx-data';
@@ -27,6 +27,7 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
       if (!clientId) {
         throw new Error('ClientId is required');
       }
+      this.logger.log(`Socket Disconnected - clientId:${clientId}`);
       this.removeSocketFromClient(clientId, socket);
     } catch (err) {
       this.processWSError(err, socket);
@@ -39,6 +40,7 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
       if (!clientId) {
         throw new Error('ClientId is required');
       }
+      this.logger.log(`Socket Connected - clientId:${clientId}`);
       this.addSocketToClient(clientId, socket);
     } catch (err) {
       this.processWSError(err, socket);
