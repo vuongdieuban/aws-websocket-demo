@@ -1,6 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { map, switchMap } from 'rxjs/operators';
+import { TransactionResponseDto } from 'src/app/dtos/tx-data-stream.dto';
 import { SocketService } from '../socket/socket.service';
 
 @Injectable({
@@ -19,7 +20,7 @@ export class TransactionsService {
   public getTxSync(clientId = this.fakeClientId) {
     const url = `${this.TX_BACKEND_URL}/sync`;
     const headers = this.generateHttpHeaders(clientId);
-    return this.http.get(url, headers);
+    return this.http.get<TransactionResponseDto[]>(url, headers);
   }
 
   public getTxAsync(clientId = this.fakeClientId) {

@@ -1,5 +1,5 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { BehaviorSubject, merge, of, Subject, Subscription } from 'rxjs';
+import { BehaviorSubject, merge, Subscription } from 'rxjs';
 import { bufferToggle, filter, mergeAll, switchMap, take, windowToggle } from 'rxjs/operators';
 import { TransactionResponseDto } from 'src/app/dtos/tx-data-stream.dto';
 import { SocketService } from 'src/app/services/socket/socket.service';
@@ -57,7 +57,7 @@ export class AsyncComponent implements OnInit, OnDestroy {
     this.socketService.disconnectSocket();
   }
 
-  public handleToggleClicked() {
+  public handleReleaseClicked() {
     this.release$.pipe(take(1)).subscribe(val => this.releaseSubject.next(!val));
   }
 }
