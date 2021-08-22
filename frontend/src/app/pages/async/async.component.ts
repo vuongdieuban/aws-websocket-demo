@@ -1,5 +1,5 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { merge, Subject } from 'rxjs';
+import { merge, Subject, Subscription } from 'rxjs';
 import { bufferToggle, mergeAll, switchMap, windowToggle } from 'rxjs/operators';
 import { TransactionResponseDto } from 'src/app/dtos/tx-data-stream.dto';
 import { SocketService } from 'src/app/services/socket/socket.service';
@@ -13,6 +13,7 @@ import { TransactionsService } from 'src/app/services/transactions/transactions.
 export class AsyncComponent implements OnInit, OnDestroy {
   public txData: TransactionResponseDto[] = [];
 
+  private readonly subscriptions: Subscription[] = [];
   private readonly windowOnSubject = new Subject();
   private readonly windowOffSubject = new Subject();
   private toggleOn = true;
@@ -31,18 +32,25 @@ export class AsyncComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
-    const source$ = this.socketService.initSocket().pipe(switchMap(() => this.txService.getTxAsync()));
-    const window$ = source$.pipe(windowToggle(this.windowOn$, val => this.windowOff$));
-    const buffer$ = source$.pipe(bufferToggle(this.windowOff$, val => this.windowOn$));
+    const window$ = this.txService.txData$.pipe(windowToggle(this.windowOn$, val => this.windowOff$));
+    const buffer$ = this.txService.txData$.pipe(bufferToggle(this.windowOff$, val => this.windowOn$));
 
-    merge(buffer$, window$)
-      .pipe(mergeAll())
+    const display$ = merge(buffer$, window$).pipe(mergeAll());
+
+    const sub = this.socketService
+      .initSocket()
+      .pipe(
+        switchMap(() => this.txService.getTxAsync()),
+        switchMap(() => display$),
+      )
       .subscribe(tx => {
         this.txData.push(tx);
       });
   }
 
-  ngOnDestroy() {}
+  ngOnDestroy() {
+    this.subscriptions.forEach(s => s.unsubscribe());
+  }
 
   public handleToggleClicked() {
     if (this.toggleOn) {

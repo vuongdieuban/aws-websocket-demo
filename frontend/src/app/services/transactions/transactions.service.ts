@@ -10,7 +10,7 @@ export class TransactionsService {
   private readonly TX_BACKEND_URL = 'http://localhost:3000/tx';
   private readonly fakeClientId = 'b.vuong@ghostlab.ca';
 
-  private get txData$() {
+  public get txData$() {
     return this.socketService.socketData$.pipe(map(data => data.payload));
   }
 
@@ -25,7 +25,7 @@ export class TransactionsService {
   public getTxAsync(clientId = this.fakeClientId) {
     const url = `${this.TX_BACKEND_URL}/async`;
     const headers = this.generateHttpHeaders(clientId);
-    return this.http.get(url, headers).pipe(switchMap(() => this.txData$));
+    return this.http.get(url, headers);
   }
 
   private generateHttpHeaders(clientId: string) {
