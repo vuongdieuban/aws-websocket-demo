@@ -1,6 +1,6 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { merge, Subject, Subscription } from 'rxjs';
-import { bufferToggle, mergeAll, switchMap, windowToggle } from 'rxjs/operators';
+import { BehaviorSubject, merge, of, Subject, Subscription } from 'rxjs';
+import { bufferToggle, filter, mergeAll, switchMap, take, windowToggle } from 'rxjs/operators';
 import { TransactionResponseDto } from 'src/app/dtos/tx-data-stream.dto';
 import { SocketService } from 'src/app/services/socket/socket.service';
 import { TransactionsService } from 'src/app/services/transactions/transactions.service';
@@ -14,16 +14,18 @@ export class AsyncComponent implements OnInit, OnDestroy {
   public txData: TransactionResponseDto[] = [];
 
   private readonly subscriptions: Subscription[] = [];
-  private readonly windowOnSubject = new Subject();
-  private readonly windowOffSubject = new Subject();
-  private toggleOn = true;
+  private readonly releaseSubject = new BehaviorSubject<boolean>(false);
 
-  private get windowOn$() {
-    return this.windowOnSubject.asObservable();
+  private get release$() {
+    return this.releaseSubject.asObservable();
   }
 
-  private get windowOff$() {
-    return this.windowOffSubject.asObservable();
+  private get releaseOn$() {
+    return this.release$.pipe(filter(v => v));
+  }
+
+  private get releaseOff$() {
+    return this.release$.pipe(filter(v => !v));
   }
 
   constructor(
@@ -32,8 +34,8 @@ export class AsyncComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
-    const window$ = this.txService.txData$.pipe(windowToggle(this.windowOn$, val => this.windowOff$));
-    const buffer$ = this.txService.txData$.pipe(bufferToggle(this.windowOff$, val => this.windowOn$));
+    const buffer$ = this.txService.txData$.pipe(bufferToggle(this.releaseOff$, val => this.releaseOn$));
+    const window$ = this.txService.txData$.pipe(windowToggle(this.releaseOn$, val => this.releaseOff$));
 
     const display$ = merge(buffer$, window$).pipe(mergeAll());
 
@@ -46,18 +48,16 @@ export class AsyncComponent implements OnInit, OnDestroy {
       .subscribe(tx => {
         this.txData.push(tx);
       });
+
+    this.subscriptions.push(sub);
   }
 
   ngOnDestroy() {
     this.subscriptions.forEach(s => s.unsubscribe());
+    this.socketService.disconnectSocket();
   }
 
   public handleToggleClicked() {
-    if (this.toggleOn) {
-      this.windowOnSubject.next();
-    } else {
-      this.windowOffSubject.next();
-    }
-    this.toggleOn = !this.toggleOn;
+    this.release$.pipe(take(1)).subscribe(val => this.releaseSubject.next(!val));
   }
 }

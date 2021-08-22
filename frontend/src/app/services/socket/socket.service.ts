@@ -11,6 +11,7 @@ export class SocketService {
   private socket: Socket<DefaultEventsMap, DefaultEventsMap>;
   private readonly SOCKET_BACKEND_URL = 'ws://localhost:3000';
   private readonly socketDataSubject = new Subject<TxStreamDataDto>();
+  private readonly MOCK_CLIENT_ID = 'b.vuong@ghostlab.ca';
 
   constructor() {}
 
@@ -18,7 +19,7 @@ export class SocketService {
     return this.socketDataSubject.asObservable();
   }
 
-  public initSocket(clientId = 'b.vuong@ghostlab.ca') {
+  public initSocket(clientId = this.MOCK_CLIENT_ID) {
     this.socket = io(this.SOCKET_BACKEND_URL, {
       query: {
         'x-clientid': clientId,
@@ -34,5 +35,9 @@ export class SocketService {
 
     // small delay to init socket
     return timer(200);
+  }
+
+  public disconnectSocket(clientId = this.MOCK_CLIENT_ID) {
+    this.socket.disconnect();
   }
 }
