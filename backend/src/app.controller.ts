@@ -24,6 +24,7 @@ export class AppController {
       fiatAmount: t.fiatAmount,
     }));
 
+    // mock database delay
     const delayMs = 5000;
     return timer(delayMs).pipe(switchMap(() => of(formattedTx)));
   }
