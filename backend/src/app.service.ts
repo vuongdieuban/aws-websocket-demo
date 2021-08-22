@@ -11,8 +11,6 @@ export class AppService {
   ) {}
 
   getTransactions(): Promise<TransactionEntity[]> {
-    return this.txRepo.find({
-      take: 20,
-    });
+    return this.txRepo.find();
   }
 }

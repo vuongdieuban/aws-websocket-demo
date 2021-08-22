@@ -7,6 +7,7 @@ import { EventsPublisher } from './events-publisher';
 export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
   private readonly logger: Logger = new Logger('EventsGateway');
   private TxDataStreamEventName = 'tx-data';
+  private QueryClientId = 'x-clientId';
 
   private readonly connectedSockets = new Map<string, Socket[]>();
 
@@ -22,7 +23,7 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   public handleDisconnect(socket: Socket) {
     try {
-      const clientId = socket.handshake.query['clientId'] as string;
+      const clientId = socket.handshake.query[this.QueryClientId] as string;
       if (!clientId) {
         throw new Error('ClientId is required');
       }
@@ -34,7 +35,7 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   async handleConnection(socket: Socket) {
     try {
-      const clientId = socket.handshake.query['clientId'] as string;
+      const clientId = socket.handshake.query[this.QueryClientId] as string;
       if (!clientId) {
         throw new Error('ClientId is required');
       }
