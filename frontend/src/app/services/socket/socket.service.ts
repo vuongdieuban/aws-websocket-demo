@@ -29,7 +29,6 @@ export class SocketService {
     this.socket.on('exception', (data: any) => console.log('Exception in Socket', data));
 
     this.socket.on('txdata', (data: TxStreamDataDto) => {
-      console.log('SocketData', data);
       this.socketDataSubject.next(data);
     });
 

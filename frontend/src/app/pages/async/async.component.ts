@@ -1,6 +1,7 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { Subject, Subscription } from 'rxjs';
-import { bufferCount, concatMap, map, mergeAll, switchMap, tap, throttleTime } from 'rxjs/operators';
+import { merge, Subject } from 'rxjs';
+import { bufferToggle, mergeAll, switchMap, windowToggle } from 'rxjs/operators';
+import { TransactionResponseDto } from 'src/app/dtos/tx-data-stream.dto';
 import { SocketService } from 'src/app/services/socket/socket.service';
 import { TransactionsService } from 'src/app/services/transactions/transactions.service';
 
@@ -10,11 +11,18 @@ import { TransactionsService } from 'src/app/services/transactions/transactions.
   styleUrls: ['./async.component.scss'],
 })
 export class AsyncComponent implements OnInit, OnDestroy {
-  public txDataSub: Subscription = new Subscription();
-  private readonly displayClickSubject = new Subject();
+  public txData: TransactionResponseDto[] = [];
 
-  private get displayClicked$() {
-    return this.displayClickSubject.asObservable();
+  private readonly windowOnSubject = new Subject();
+  private readonly windowOffSubject = new Subject();
+  private toggleOn = true;
+
+  private get windowOn$() {
+    return this.windowOnSubject.asObservable();
+  }
+
+  private get windowOff$() {
+    return this.windowOffSubject.asObservable();
   }
 
   constructor(
@@ -23,27 +31,25 @@ export class AsyncComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
-    this.txDataSub = this.socketService
-      .initSocket()
-      .pipe(
-        switchMap(() => this.txService.getTxAsync()),
-        bufferCount(5),
-        concatMap(txDataChunk =>
-          this.displayClicked$.pipe(
-            throttleTime(500),
-            map(() => txDataChunk),
-          ),
-        ),
-        tap(data => console.log('ChunkedData', data)),
-      )
-      .subscribe();
+    const source$ = this.socketService.initSocket().pipe(switchMap(() => this.txService.getTxAsync()));
+    const window$ = source$.pipe(windowToggle(this.windowOn$, val => this.windowOff$));
+    const buffer$ = source$.pipe(bufferToggle(this.windowOff$, val => this.windowOn$));
+
+    merge(buffer$, window$)
+      .pipe(mergeAll())
+      .subscribe(tx => {
+        this.txData.push(tx);
+      });
   }
 
-  ngOnDestroy() {
-    this.txDataSub.unsubscribe();
-  }
+  ngOnDestroy() {}
 
-  public handleDisplayClicked() {
-    this.displayClickSubject.next();
+  public handleToggleClicked() {
+    if (this.toggleOn) {
+      this.windowOnSubject.next();
+    } else {
+      this.windowOffSubject.next();
+    }
+    this.toggleOn = !this.toggleOn;
   }
 }

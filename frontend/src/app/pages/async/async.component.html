@@ -1,1 +1,6 @@
-<button (click)="handleDisplayClicked()">Display</button>
+<button (click)="handleToggleClicked()">toggle</button>
+<br />
+
+<ul>
+  <li *ngFor="let tx of txData; index as i">{{ i + 1 }}. {{ tx.id }}</li>
+</ul>
