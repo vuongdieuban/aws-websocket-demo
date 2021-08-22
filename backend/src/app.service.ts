@@ -12,7 +12,7 @@ export class AppService {
 
   getTransactions(): Promise<TransactionEntity[]> {
     return this.txRepo.find({
-      take: 60,
+      take: 30,
     });
   }
 }
