@@ -2,7 +2,7 @@ import { MigrationInterface, QueryRunner } from 'typeorm';
 import { TransactionEntity } from '../entities/Transaction.entity';
 
 export class SeedsTransactions1629580106395 implements MigrationInterface {
-  private MaxNumberOfTransactions = 300;
+  private MaxNumberOfTransactions = 100;
 
   private randomIntFromInterval(min: number, max: number) {
     return Math.floor(Math.random() * (max - min + 1) + min);

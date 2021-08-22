@@ -46,7 +46,7 @@ export class AppController {
     }));
 
     for (const tx of formattedTx) {
-      await timer(20).toPromise(); // small delay so we don't push too fast
+      await timer(1000).toPromise(); // small delay so we don't push too fast
       this.eventsPublisher.publish(clientId, tx);
     }
   }
