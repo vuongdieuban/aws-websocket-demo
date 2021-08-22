@@ -39,10 +39,15 @@ export class AppController {
     // immediately terminate the request and reply to the client
     response.json('success');
 
-    const tx = await this.appService.getTransactions();
-    tx.map(t => ({
-      id: t.id,
-      fiatAmount: t.fiatAmount,
-    })).forEach(t => this.eventsPublisher.publish(clientId, t));
+    const transactions = await this.appService.getTransactions();
+    const formattedTx = transactions.map(tx => ({
+      id: tx.id,
+      fiatAmount: tx.fiatAmount,
+    }));
+
+    for (const tx of formattedTx) {
+      await timer(20).toPromise(); // small delay so we don't push too fast
+      this.eventsPublisher.publish(clientId, tx);
+    }
   }
 }
