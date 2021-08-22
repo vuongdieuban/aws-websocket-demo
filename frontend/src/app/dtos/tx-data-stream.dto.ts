@@ -5,5 +5,5 @@ export interface TransactionResponseDto {
 
 export interface TxStreamDataDto {
   clientId: string;
-  payload: TransactionResponseDto[];
+  payload: TransactionResponseDto;
 }

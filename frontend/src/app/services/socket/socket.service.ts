@@ -1,6 +1,8 @@
 import { Injectable } from '@angular/core';
+import { Subject, timer } from 'rxjs';
 import { io, Socket } from 'socket.io-client';
 import { DefaultEventsMap } from 'socket.io-client/build/typed-events';
+import { TransactionResponseDto, TxStreamDataDto } from 'src/app/dtos/tx-data-stream.dto';
 
 @Injectable({
   providedIn: 'root',
@@ -8,18 +10,30 @@ import { DefaultEventsMap } from 'socket.io-client/build/typed-events';
 export class SocketService {
   private socket: Socket<DefaultEventsMap, DefaultEventsMap>;
   private readonly SOCKET_BACKEND_URL = 'ws://localhost:3000';
+  private readonly socketDataSubject = new Subject<TxStreamDataDto>();
 
   constructor() {}
+
+  public get socketData$() {
+    return this.socketDataSubject.asObservable();
+  }
 
   public initSocket(clientId = 'b.vuong@ghostlab.ca') {
     this.socket = io(this.SOCKET_BACKEND_URL, {
       query: {
-        'x-clientId': clientId,
+        'x-clientid': clientId,
       },
     });
 
     this.socket.on('connection', (data: any) => console.log('connected', data));
     this.socket.on('exception', (data: any) => console.log('Exception in Socket', data));
-    this.socket.on('tx-data', (data: any) => console.log('tx-data', data));
+
+    this.socket.on('txdata', (data: TxStreamDataDto) => {
+      console.log('SocketData', data);
+      this.socketDataSubject.next(data);
+    });
+
+    // small delay to init socket
+    return timer(200);
   }
 }
