@@ -6,8 +6,8 @@ import { EventsPublisher } from './events-publisher';
 @WebSocketGateway({ cors: true })
 export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
   private readonly logger: Logger = new Logger('EventsGateway');
-  private TxDataStreamEventName = 'tx-data';
-  private QueryClientId = 'x-clientId';
+  private TxDataStreamEventName = 'txdata';
+  private QueryClientId = 'x-clientid';
 
   private readonly connectedSockets = new Map<string, Socket[]>();
 

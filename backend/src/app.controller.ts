@@ -13,7 +13,7 @@ export class AppController {
 
   @Get('/sync')
   async getTransactionsSync(@Headers() headers: IncomingHttpHeaders) {
-    const clientId = headers['x-clientId'] as string;
+    const clientId = headers['x-clientid'] as string;
     if (!clientId) {
       throw new BadRequestException('ClientId is required in header');
     }
@@ -31,7 +31,7 @@ export class AppController {
 
   @Get('/async')
   async getTransactionsASync(@Headers() headers: IncomingHttpHeaders, @Res() response: Response) {
-    const clientId = headers['x-clientId'] as string;
+    const clientId = headers['x-clientid'] as string;
     if (!clientId) {
       throw new BadRequestException('ClientId is required in header');
     }
@@ -40,13 +40,9 @@ export class AppController {
     response.json('success');
 
     const tx = await this.appService.getTransactions();
-    const formattedTx = tx.map(t => ({
+    tx.map(t => ({
       id: t.id,
       fiatAmount: t.fiatAmount,
-    }));
-
-    const chunkSize = 100;
-    const txChunks = _.chunk(formattedTx, chunkSize);
-    txChunks.forEach(chunk => this.eventsPublisher.publish(clientId, chunk));
+    })).forEach(t => this.eventsPublisher.publish(clientId, t));
   }
 }
