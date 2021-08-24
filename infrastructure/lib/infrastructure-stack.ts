@@ -5,7 +5,7 @@ import { PolicyStatement } from '@aws-cdk/aws-iam';
 import { Runtime, Code, Function as LambdaFunction } from '@aws-cdk/aws-lambda';
 
 import * as cdk from '@aws-cdk/core';
-import { CfnOutput } from '@aws-cdk/core';
+import { CfnOutput, Duration } from '@aws-cdk/core';
 
 export class InfrastructureStack extends cdk.Stack {
   constructor(scope: cdk.Construct, id: string, props?: cdk.StackProps) {
@@ -93,6 +93,7 @@ export class InfrastructureStack extends cdk.Stack {
       ...props,
       code: Code.fromAsset('handlers/deploy'),
       handler: 'handlers.getTxHandler',
+      timeout: Duration.seconds(180),
     });
 
     // needs a permission to post messages to connected WebSocket clients.
