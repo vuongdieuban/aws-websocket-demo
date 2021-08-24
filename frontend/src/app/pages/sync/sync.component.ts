@@ -8,6 +8,7 @@ import { TransactionsService } from 'src/app/services/transactions/transactions.
   styleUrls: ['./sync.component.scss'],
 })
 export class SyncComponent implements OnInit, OnDestroy {
+  public txData: string[] = [];
   private readonly subscriptions: Subscription[] = [];
 
   constructor(private readonly txService: TransactionsService) {}
@@ -21,6 +22,7 @@ export class SyncComponent implements OnInit, OnDestroy {
   ngOnInit() {
     const sub = this.txService.getTxSync().subscribe(data => {
       console.log('Async data', data);
+      this.txData = data;
     });
     this.subscriptions.push(sub);
   }

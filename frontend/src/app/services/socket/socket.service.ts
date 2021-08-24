@@ -21,6 +21,10 @@ export class SocketService {
       // Listen for messages
       this.socket.addEventListener('message', event => {
         const data = JSON.parse(event.data);
+        if (data.message === 'Endpoint request timed out') {
+          return;
+        }
+
         const txId = data.txId;
         this.socketDataSubject.next(txId);
       });
