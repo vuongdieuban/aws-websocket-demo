@@ -1,7 +1,6 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { BehaviorSubject, merge, Subscription } from 'rxjs';
-import { bufferToggle, filter, mergeAll, switchMap, take, windowToggle } from 'rxjs/operators';
-import { TransactionResponseDto } from 'src/app/dtos/tx-data-stream.dto';
+import { bufferToggle, filter, mergeAll, switchMap, take, tap, windowToggle } from 'rxjs/operators';
 import { SocketService } from 'src/app/services/socket/socket.service';
 import { TransactionsService } from 'src/app/services/transactions/transactions.service';
 
@@ -11,7 +10,7 @@ import { TransactionsService } from 'src/app/services/transactions/transactions.
   styleUrls: ['./async.component.scss'],
 })
 export class AsyncComponent implements OnInit, OnDestroy {
-  public txData: TransactionResponseDto[] = [];
+  public txData: string[] = [];
 
   private readonly subscriptions: Subscription[] = [];
   private readonly releaseSubject = new BehaviorSubject<boolean>(false);
@@ -28,21 +27,22 @@ export class AsyncComponent implements OnInit, OnDestroy {
     return this.release$.pipe(filter(v => !v));
   }
 
-  constructor(
-    private readonly socketService: SocketService,
-    private readonly txService: TransactionsService,
-  ) {}
+  constructor(private readonly socketService: SocketService) {}
 
   ngOnInit(): void {
-    const buffer$ = this.txService.txData$.pipe(bufferToggle(this.releaseOff$, val => this.releaseOn$));
-    const window$ = this.txService.txData$.pipe(windowToggle(this.releaseOn$, val => this.releaseOff$));
+    const buffer$ = this.socketService.socketData$.pipe(
+      bufferToggle(this.releaseOff$, val => this.releaseOn$),
+    );
+    const window$ = this.socketService.socketData$.pipe(
+      windowToggle(this.releaseOn$, val => this.releaseOff$),
+    );
 
     const display$ = merge(buffer$, window$).pipe(mergeAll());
 
     const sub = this.socketService
       .initSocket()
       .pipe(
-        switchMap(() => this.txService.getTxAsync()),
+        tap(() => this.socketService.startDataStream()),
         switchMap(() => display$),
       )
       .subscribe(tx => {

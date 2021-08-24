@@ -1,17 +1,12 @@
 import { Injectable } from '@angular/core';
-import { Subject, timer } from 'rxjs';
-import { io, Socket } from 'socket.io-client';
-import { DefaultEventsMap } from 'socket.io-client/build/typed-events';
-import { TransactionResponseDto, TxStreamDataDto } from 'src/app/dtos/tx-data-stream.dto';
+import { Observable, Subject } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
 })
 export class SocketService {
-  private socket: Socket<DefaultEventsMap, DefaultEventsMap>;
-  private readonly SOCKET_BACKEND_URL = 'ws://localhost:3000';
-  private readonly socketDataSubject = new Subject<TxStreamDataDto>();
-  private readonly MOCK_CLIENT_ID = 'b.vuong@ghostlab.ca';
+  private socket: WebSocket;
+  private readonly socketDataSubject = new Subject<string>();
 
   constructor() {}
 
@@ -19,25 +14,30 @@ export class SocketService {
     return this.socketDataSubject.asObservable();
   }
 
-  public initSocket(clientId = this.MOCK_CLIENT_ID) {
-    this.socket = io(this.SOCKET_BACKEND_URL, {
-      query: {
-        'x-clientid': clientId,
-      },
+  public initSocket(): Observable<void> {
+    return new Observable(observer => {
+      this.socket = new WebSocket('wss://t4ikpz79bg.execute-api.ca-central-1.amazonaws.com/dev');
+
+      // Listen for messages
+      this.socket.addEventListener('message', event => {
+        const data = JSON.parse(event.data);
+        const txId = data.txId;
+        this.socketDataSubject.next(txId);
+      });
+
+      // Connection opened
+      this.socket.addEventListener('open', event => {
+        observer.next(void 0);
+        observer.complete();
+      });
     });
-
-    this.socket.on('connection', (data: any) => console.log('connected', data));
-    this.socket.on('exception', (data: any) => console.log('Exception in Socket', data));
-
-    this.socket.on('txdata', (data: TxStreamDataDto) => {
-      this.socketDataSubject.next(data);
-    });
-
-    // small delay to init socket
-    return timer(200);
   }
 
-  public disconnectSocket(clientId = this.MOCK_CLIENT_ID) {
-    this.socket.disconnect();
+  public startDataStream() {
+    this.socket.send(JSON.stringify({ action: 'getTx', data: 'Starting from the bottom now we here' }));
+  }
+
+  public disconnectSocket() {
+    this.socket.close();
   }
 }
