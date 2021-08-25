@@ -2,7 +2,6 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { BehaviorSubject, merge, Subscription } from 'rxjs';
 import { bufferToggle, filter, mergeAll, switchMap, take, tap, windowToggle } from 'rxjs/operators';
 import { SocketService } from 'src/app/services/socket/socket.service';
-import { TransactionsService } from 'src/app/services/transactions/transactions.service';
 
 @Component({
   selector: 'app-async',

@@ -1,5 +1,6 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Subscription } from 'rxjs';
+import { take } from 'rxjs/operators';
 import { TransactionsService } from 'src/app/services/transactions/transactions.service';
 
 @Component({
@@ -13,19 +14,19 @@ export class SyncComponent implements OnInit, OnDestroy {
 
   constructor(private readonly txService: TransactionsService) {}
 
-  // async ngOnInit() {
-  // const data = await this.txService.getTxSync().pipe(take(1)).toPromise();
-  // this.txData = data;
-  // console.log('SyncData', data);
-  // }
-
-  ngOnInit() {
-    const sub = this.txService.getTxSync().subscribe(data => {
-      console.log('Async data', data);
-      this.txData = data;
-    });
-    this.subscriptions.push(sub);
+  async ngOnInit() {
+    const data = await this.txService.getTxSync().pipe(take(1)).toPromise();
+    this.txData = data;
+    console.log('SyncData', data);
   }
+
+  // ngOnInit() {
+  //   const sub = this.txService.getTxSync().subscribe(data => {
+  //     console.log('Async data', data);
+  //     this.txData = data;
+  //   });
+  //   this.subscriptions.push(sub);
+  // }
 
   ngOnDestroy() {
     this.subscriptions.forEach(s => s.unsubscribe());
