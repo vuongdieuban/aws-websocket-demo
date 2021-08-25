@@ -10,7 +10,7 @@ export class TransactionsService {
   constructor(private readonly http: HttpClient) {}
 
   public getTxSync(): Observable<string[]> {
-    const url = 'https://fh4wopuglj.execute-api.ca-central-1.amazonaws.com/';
+    const url = 'https://cw95ikm6u0.execute-api.ca-central-1.amazonaws.com/';
     return this.http.get<{ data: string[] }>(url).pipe(map(d => d.data));
   }
 }

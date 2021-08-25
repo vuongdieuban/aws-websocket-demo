@@ -16,7 +16,7 @@ export class SocketService {
 
   public initSocket(): Observable<void> {
     return new Observable(observer => {
-      this.socket = new WebSocket('wss://t4ikpz79bg.execute-api.ca-central-1.amazonaws.com/dev');
+      this.socket = new WebSocket('wss://6niiit7u35.execute-api.ca-central-1.amazonaws.com/dev');
 
       // Listen for messages
       this.socket.addEventListener('message', event => {
